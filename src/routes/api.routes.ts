@@ -5,8 +5,8 @@ import authCheck from '../middleware/auth.middleware';
 const apiRoutes = Router();
 
 // authentication api's
-apiRoutes.get('/registration', registration);
-apiRoutes.get('/login', login);
+apiRoutes.post('/registration', registration);
+apiRoutes.post('/login', login);
 apiRoutes.get('/loggedInUser', authCheck, getLoggedInUser);
 
 // billing api's

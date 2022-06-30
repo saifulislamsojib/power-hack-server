@@ -14,7 +14,7 @@ export const registration = async (req: Request, res: Response): Promise<void> =
         const user = await newUser.save();
         const payload = getPayload(user);
         const token = createJwtToken(payload);
-        res.status(201).json({ auth: payload, token });
+        res.status(201).json({ auth: payload, token, message: 'Account Register Successfully' });
     } catch (err) {
         const errors = handleError(err as ValidationError);
         res.status(203).json({ errors });
@@ -28,9 +28,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         if (user?._id) {
             const isValidPassword = await compare(password, user.password);
             if (isValidPassword) {
-                const payload = getPayload(user);
-                const token = createJwtToken(payload);
-                res.status(201).json({ user: payload, token });
+                const auth = getPayload(user);
+                const token = createJwtToken(auth);
+                res.status(201).json({ auth, token, message: 'Account Login Successfully' });
             } else {
                 res.status(203).json({ error: 'Invalid Email or Password' });
             }
@@ -51,7 +51,7 @@ export const getLoggedInUser = async (
         const user = await User.findOne({ _id });
         if (user?._id) {
             const auth = getPayload(user);
-            res.status(201).json(auth);
+            res.status(201).json({ auth });
         } else {
             res.status(401).json({ message: 'Invalid token' });
         }
