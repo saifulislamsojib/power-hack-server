@@ -5,11 +5,27 @@ import { BillingInfo } from '../types/billing';
 import handleError from '../utils/handleError';
 
 export const getBillingList = async (
-    req: Request<{ auth: AuthPayload }, Record<string, unknown>, BillingInfo>,
+    req: Request<
+        { auth: AuthPayload },
+        Record<string, unknown>,
+        Record<string, unknown>,
+        { page?: string; select?: string; search?: string }
+    >,
     res: Response,
 ): Promise<void> => {
+    const { page, select, search } = req.query;
+    const skipCount = page ? (+page - 1) * 10 : 0;
     try {
-        const billingList = await Billing.find({});
+        const billingList = await Billing.find(
+            search
+                ? {
+                      $or: [{ fullName: search }, { email: search }, { phone: search }],
+                  }
+                : {},
+            select ? { _id: 1, [select]: 1 } : undefined,
+        )
+            .skip(search ? 0 : skipCount)
+            .limit(page ? 10 : 0);
         res.status(200).json({ billingList });
     } catch (err) {
         res.status(500).json(err);
